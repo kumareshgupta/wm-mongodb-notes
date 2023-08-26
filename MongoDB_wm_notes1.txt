@@ -1,0 +1,244 @@
+1. MongoDB server downloaded and installed - msi 
+2. Mongo Shell downloaded and unzipped in C:\Program Files\MongoDB
+3. Env Path for Mongo Shell C:\Program Files\MongoDB\mongosh-1.10.5-win32-x64\bin
+4. Open command prompt and type mongosh
+
+create a database
+use <database name>
+
+database ----> collections --------> documents
+
+
+db.createCollection('movies')
+
+db.movies.find()
+
+db.movies.insert({'name':'Bahubali', 'category':'Action', 'year':2011, 'revenue':1500})
+DeprecationWarning: Collection.insert() is deprecated. Use insertOne, insertMany, or bulkWrite.
+
+insertOne
+db.movies.insertOne({'name':'Bahubali 2', 'category':'Action', 'year':2014, 'revenue':1600})
+
+insertMany
+db.movies.insertMany([
+{'name':'Kantara', 'category':'Action', 'year':2022, 'revenue':500}, 
+{'name':'Sholay', 'category':'Action', 'year':1972, 'revenue':100}, 
+{'name':'Drishyam', 'category':'Thriller', 'year':2022, 'revenue':600},
+{'name':'Bahubali 2', 'category':'Action', 'year':2020, 'revenue':500}, 
+{'name':'Gadar 2', 'category':'Action', 'year':2023, 'revenue':1000}, 
+{'name':'Bhediya', 'category':'Thriller', 'year':2023, 'revenue':660}
+])
+
+
+db.movies.insertOne({_id: 1 , 'name':'Bahubali 2', 'category':'Action', 'year':2014, 'revenue':1600})
+
+
+db.movies.insertOne({_id: 4 , 'title':'Zanjeer', 'category':'Action', 'year':2014, 'revenue':1600, 'producer':'Rajmouli'})
+
+db.movies.insertOne({_id: 5 , 'title':'Tanahji', 'category':['Action', 'History'], 'year':2019, 'revenue':1600, 'producer':'Rajmouli'})
+
+
+Update 
+
+updateOne
+updateMany
+
+db.movies.updateOne({'_id': 5},{$set:{'title':'The Great One'}})
+
+db.movies.updateMany({},{$set:{language:'Sanskrit'}})
+
+db.movies.updateOne({'name':'Kantara'},{$set:{'language':'Kannada'}})
+
+
+db.movies.find({'name':'Kantara'})
+
+db.movies.updateOne({'name':'Bahubali 2'},{$set:{'language':'Telgu', 'year':2020}})
+
+
+change field name
+db.movies.updateMany({},{$rename:{'name':'title'}})
+
+db.movies.updateMany({},{$unset:{'titles':''}})
+
+
+upsert = update + insert
+
+
+db.movies.update( {'title':'Drishyam 2'}, {'$set':{'revenue':999}}, {'upsert':true})
+
+
+db.movies.update( 
+	{'title':'Jailer'},{'$set':{'revenue':999} , '$setOnInsert':{	'category':'Action','year':2023,'language':'Tamil'}},
+	{'upsert':true})
+
+
+db.movies.update( {'title':'Jailer'}, {$set:{'revenue':9999}, $setOnInsert:{ 'category':'Action', 'year':2023, 'language':'Tamil'} },{'upsert':true})
+
+
+
+
+db.movies.find({'revenue':{$gt:500}})
+
+$gt - greater then
+$gte - greater then or equal to
+$lt - less then
+$lte - less then or equal to
+$ne - not equals to
+
+1. find out how many movies which released in or after 2014
+db.movies.find({'year':{$gte:2014}}).count()
+
+2. find out movies which was released after 2000 and before 2010
+db.movies.find({'year':{$gt:2000, $lt:2010}})
+
+3. movies which was released in year 2010 and afterwards
+
+
+Logical operators - AND OR
+
+
+4. show details of all action movies which were released in 2020 or afterwards
+
+db.movies.find({$and: [{'category':'Action'}, {'year':{$gte:2020}}]})
+
+
+5. List all the movies either  not released in 2020 or having category thriller
+
+db.movies.find({$or: [{'category':'Thriller'}, {'year':{$ne:2020}}]})
+
+
+6. List all the movies which were (not release in 1995) and  (category is action or revenue is greater than 550)
+
+db.movies.find({$and:[{'year':{$ne:1995}}, {$or:[{'category':'Action'}, {'revenue':{$gt:550}}]}]});
+
+db.movies.find({'year':{$ne:1995}, $or:[{'category':'Action'}, {'revenue':{$gt:550}}]});
+
+
+Projection =================================
+
+to display selected fields
+
+db.movies.find({})
+
+db.movies.find({}, {'_id':0, 'title':1, 'category':1})
+db.movies.find({'year': {$gt:2020}}, {'_id':0, 'title':1, 'category':1})
+db.movies.find({'year': {$gt:2020}}, {'_id':0, 'title':1})
+
+
+
+Reference :
+https://www.mongodb.com/docs/mongodb-shell/crud/read/
+
+
+Aggregation Pipeline ===========================
+
+The aggregation pipeline in MongoDB is a powerful framework that allows you to process and transform data in complex ways within the database. It enables you to perform a series of data processing operations on a collection's documents to aggregate, filter, transform, and manipulate data according to your specific requirements.
+
+
+
+maggregate(pipeline, options)
+groups data records and compute results
+
+db.movies.aggregate({$group:{_id:'$category', total_revenue:{$sum:'$revenue'}}})
+
+$sum
+$max
+$min
+$avg
+
+
+$project
+$group
+
+
+db.movies.aggregate([{$match : {'category':'Action'}},
+ {$group:{_id:'$category', total_revenue:{$sum:'$revenue'}}},  
+{$project : {'category':1, 'total_revenue':1 }}
+])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
